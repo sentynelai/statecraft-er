@@ -1,52 +1,46 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Facebook, Instagram, Twitter, Video, X, TrendingUp } from 'lucide-react';
+import { Facebook, MessageSquare, Users, X } from 'lucide-react';
+import { useProvincialData } from '../../hooks/useProvincialData';
+import { calculateAudienceTotals } from '../../lib/utils/calculations';
 
 interface DigitalAudienceModalProps {
   onClose: () => void;
+  aiResponse?: string;
 }
 
-export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onClose }) => {
+export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onClose, aiResponse }) => {
+  const { data } = useProvincialData();
+  const audienceTotals = calculateAudienceTotals(data);
+
   const platforms = [
     {
-      name: 'Facebook',
-      label: 'Audiencia Total',
-      value: '0.1M',
-      trend: '+15%',
-      trendLabel: 'vs. mes anterior',
+      name: 'Facebook A',
+      value: audienceTotals.fbA,
       icon: Facebook,
       color: '#1877F2',
-      progress: 30
+      progress: (audienceTotals.fbA / audienceTotals.total) * 100
     },
     {
-      name: 'Instagram',
-      label: 'Audiencia Total',
-      value: '0.1M',
-      trend: '+22%',
-      trendLabel: 'vs. mes anterior',
-      icon: Instagram,
-      color: '#E4405F',
-      progress: 30
+      name: 'Facebook B',
+      value: audienceTotals.fbB,
+      icon: Facebook,
+      color: '#1877F2',
+      progress: (audienceTotals.fbB / audienceTotals.total) * 100
     },
     {
-      name: 'Twitter',
-      label: 'Audiencia Total',
-      value: '0.0M',
-      trend: '+8%',
-      trendLabel: 'vs. mes anterior',
-      icon: Twitter,
-      color: '#1DA1F2',
-      progress: 15
+      name: 'GMP',
+      value: audienceTotals.gmp,
+      icon: MessageSquare,
+      color: '#00FF9C',
+      progress: (audienceTotals.gmp / audienceTotals.total) * 100
     },
     {
-      name: 'TikTok',
-      label: 'Audiencia Total',
-      value: '0.1M',
-      trend: '+45%',
-      trendLabel: 'vs. mes anterior',
-      icon: Video,
-      color: '#00F2EA',
-      progress: 30
+      name: 'WhatsApp',
+      value: audienceTotals.whatsapp,
+      icon: Users,
+      color: '#25D366',
+      progress: (audienceTotals.whatsapp / audienceTotals.total) * 100
     }
   ];
 
@@ -95,19 +89,14 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">{platform.name}</h3>
-                    <p className="text-dark-400">{platform.label}</p>
+                    <p className="text-dark-400">Audiencia Total</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div>
-                    <p className="text-3xl font-bold">{platform.value}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <TrendingUp className="w-4 h-4 text-[#00FF9C]" />
-                      <span className="text-[#00FF9C]">{platform.trend}</span>
-                      <span className="text-dark-400 text-sm">{platform.trendLabel}</span>
-                    </div>
-                  </div>
+                  <p className="text-3xl font-bold">
+                    {platform.value.toLocaleString('es-AR')}
+                  </p>
 
                   <div className="h-2 bg-dark-800 rounded-full overflow-hidden">
                     <motion.div

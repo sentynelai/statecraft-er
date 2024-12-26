@@ -1,11 +1,18 @@
-export interface DemographicData {
+export interface SheetData {
   departamento: string;
-  poblacion: number;
-  superficie: number;
-  densidad: number;
   lat: number;
   lng: number;
-  presupuesto: number;
-  escuelas: number;
-  hospitales: number;
+  poblacion: number;
+  audienciaFbA: number;
+  audienciaFbB: number;
+  audienciaGmp: number;
+  whatsapp: number;
+}
+
+export interface AudienceTotals {
+  fbA: number;
+  fbB: number;
+  gmp: number;
+  whatsapp: number;
+  total: number;
 }

@@ -46,7 +46,7 @@ export const PopulationStatsModal: React.FC<PopulationStatsModalProps> = ({ onCl
                 transition={{ delay: index * 0.1 }}
                 className="bg-dark-800/30 rounded-xl p-6"
               >
-                <h3 className="text-lg font-semibold mb-4">{city.departamento}</h3>
+                <h3 className="text-lg font-semibold mb-4">{city.departamento}.</h3>
                 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
