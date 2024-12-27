@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { AnimatePresence } from 'framer-motion';
-import { LocationInfo } from './map/LocationInfo';
+import { LocationModals } from './map/LocationModals';
 import { useProvincialData } from '../hooks/useProvincialData';
-import type { LocationData } from '../lib/types/map';
+import type { SheetData } from '../lib/types/sheets';
 
 const ENTRE_RIOS_CENTER = { lat: -31.7333, lng: -60.5333 };
 
@@ -12,7 +12,7 @@ export const Map: React.FC = () => {
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const { data: locations, isLoading } = useProvincialData();
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<SheetData | null>(null);
   
   useEffect(() => {
     if (!mapRef.current || isLoading || !locations?.length) return;
@@ -90,8 +90,8 @@ export const Map: React.FC = () => {
       
       <AnimatePresence>
         {selectedLocation && (
-          <LocationInfo 
-            data={selectedLocation} 
+          <LocationModals 
+            location={selectedLocation} 
             onClose={() => setSelectedLocation(null)} 
           />
         )}

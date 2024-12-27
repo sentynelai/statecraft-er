@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Map } from './Map';
 import { Header } from './Header';
 import { ChatAssistant } from './ChatAssistant';
@@ -7,11 +7,16 @@ import { StatsOverlay } from './StatsOverlay';
 import { InfoModals } from './modals/InfoModals';
 import { useProvincialData } from '../hooks/useProvincialData';
 import { useModalStore } from '../stores/modalStore';
+import { LoadingScreen } from './LoadingScreen';
 
 export const Dashboard: React.FC = () => {
   const [activeOverlay, setActiveOverlay] = React.useState<string | null>(null);
-  const { data: provincialData } = useProvincialData();
+  const { data: provincialData, isLoading } = useProvincialData();
   const { isOpen } = useModalStore();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="h-screen bg-dark-950 overflow-hidden relative">
@@ -22,12 +27,12 @@ export const Dashboard: React.FC = () => {
 
       {/* Header */}
       <div className="relative z-10">
-        <Header onOverlayChange={setActiveOverlay} />
+        <Header />
       </div>
 
       {/* Info Modals */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && provincialData.length > 0 && (
           <div className="relative z-20">
             <InfoModals />
           </div>

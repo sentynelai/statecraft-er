@@ -1,73 +1,58 @@
 import { SheetData } from '../types/sheets';
 
-const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SPREADSHEET_ID;
-const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
+const SPREADSHEET_ID = '154Ic1dbtqCR0h4ISwqaiCyd_GKu5Wa_czlZbHbsJkwQ';
+const SHEET_ID = '0';
 const SHEET_NAME = 'Demografia';
-const RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000;
+const API_KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
 
-async function validateEnvironment() {
+async function validateConfig() {
   if (!API_KEY) {
-    throw new Error('Missing Google Sheets API key');
-  }
-  if (!SPREADSHEET_ID) {
-    throw new Error('Missing Google Spreadsheet ID');
+    throw new Error('Falta la clave de API de Google Sheets');
   }
 }
 
-function parseNumber(value: string | undefined): number {
-  if (!value) return 0;
-  const cleanValue = value.replace(/[^\d.-]/g, '');
-  const number = parseFloat(cleanValue);
-  return isNaN(number) ? 0 : number;
-}
-
-async function fetchWithRetry(url: string, attempt = 1): Promise<Response> {
-  try {
-    const response = await fetch(url);
-    
-    if (response.status === 403) {
-      throw new Error('Access denied. Please check API key permissions.');
-    }
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return response;
-  } catch (error) {
-    if (attempt < RETRY_ATTEMPTS) {
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
-      return fetchWithRetry(url, attempt + 1);
-    }
-    throw error;
-  }
+function parseNumber(value: string | undefined, defaultValue = 0): number {
+  if (!value) return defaultValue;
+  const cleaned = value.replace(/[^\d.-]/g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? defaultValue : parsed;
 }
 
 export async function fetchSheetData(): Promise<SheetData[]> {
   try {
-    await validateEnvironment();
+    await validateConfig();
+
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:Z?key=${API_KEY}`;
     
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A2:R?key=${API_KEY}`;
-    const response = await fetchWithRetry(url);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Error al acceder a la hoja de cálculo (${response.status})`);
+    }
+
     const data = await response.json();
-    
+
     if (!data.values || !Array.isArray(data.values)) {
-      console.warn('No data found in spreadsheet');
-      return [];
+      throw new Error('La hoja de cálculo está vacía');
     }
 
     return data.values
-      .filter(row => Array.isArray(row) && row.length >= 18)
+      .filter(row => Array.isArray(row) && row.length >= 8)
       .map(row => ({
         departamento: String(row[3] || '').trim(),
         lat: parseNumber(row[6]),
         lng: parseNumber(row[7]),
         poblacion: parseNumber(row[8]),
+        escuelas: parseNumber(row[9]),
+        hospitales: parseNumber(row[10]),
+        presupuesto: parseNumber(row[11]),
         audienciaFbA: parseNumber(row[14]),
         audienciaFbB: parseNumber(row[15]),
         audienciaGmp: parseNumber(row[16]),
-        whatsapp: parseNumber(row[17])
+        whatsapp: parseNumber(row[17]),
+        analisis: String(row[22] || '').trim(),
+        recomendaciones: String(row[23] || '').trim(),
+        conclusiones: String(row[25] || '').trim()
       }))
       .filter(item => 
         item.departamento && 
@@ -76,8 +61,8 @@ export async function fetchSheetData(): Promise<SheetData[]> {
         item.poblacion > 0
       );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Sheet fetch error:', errorMessage);
-    throw new Error(`Failed to fetch sheet data: ${errorMessage}`);
+    const message = error instanceof Error ? error.message : 'Error desconocido';
+    console.error('Error al obtener datos:', message);
+    throw new Error(message);
   }
 }

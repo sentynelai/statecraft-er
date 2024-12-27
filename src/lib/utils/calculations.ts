@@ -1,30 +1,26 @@
 import type { SheetData, AudienceTotals } from '../types/sheets';
 
 export function calculateTotalPopulation(data: SheetData[]): number {
-  if (!Array.isArray(data)) return 0;
-  
-  return data.reduce((total, item) => {
-    const population = typeof item.poblacion === 'number' ? item.poblacion : 0;
-    return total + population;
-  }, 0);
+  return data.reduce((total, item) => total + item.poblacion, 0);
 }
 
 export function calculateAudienceTotals(data: SheetData[]): AudienceTotals {
-  if (!Array.isArray(data)) {
-    return { fbA: 0, fbB: 0, gmp: 0, whatsapp: 0, total: 0 };
-  }
-  
   const totals = data.reduce((acc, item) => ({
-    fbA: acc.fbA + (Number(item.audienciaFbA) || 0),
-    fbB: acc.fbB + (Number(item.audienciaFbB) || 0),
-    gmp: acc.gmp + (Number(item.audienciaGmp) || 0),
-    whatsapp: acc.whatsapp + (Number(item.whatsapp) || 0)
+    fbA: acc.fbA + item.audienciaFbA,
+    fbB: acc.fbB + item.audienciaFbB,
+    gmp: acc.gmp + item.audienciaGmp,
+    whatsapp: acc.whatsapp + item.whatsapp
   }), { fbA: 0, fbB: 0, gmp: 0, whatsapp: 0 });
-
-  const total = Object.values(totals).reduce((sum, val) => sum + val, 0);
 
   return {
     ...totals,
-    total
+    total: totals.fbA + totals.fbB + totals.gmp + totals.whatsapp
   };
+}
+
+export function calculateEducationStats(data: SheetData[]) {
+  return data.reduce((acc, item) => ({
+    totalEscuelas: acc.totalEscuelas + item.escuelas,
+    totalHospitales: acc.totalHospitales + item.hospitales,
+  }), { totalEscuelas: 0, totalHospitales: 0 });
 }

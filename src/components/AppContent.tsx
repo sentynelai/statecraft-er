@@ -15,7 +15,7 @@ export function AppContent() {
   };
 
   const handleDemoConsent = (useDemo: boolean) => {
-    setUseDemoData(useDemo);
+    setUseDemoData(false);
     setShowPreload(false);
   };
 

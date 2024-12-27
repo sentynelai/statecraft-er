@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X } from 'lucide-react';
 import { Logo } from './Logo';
+import { useProvincialData } from '../hooks/useProvincialData';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -10,11 +11,20 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
+  const { mutate } = useProvincialData();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (code === '0000') {
-      onLogin();
+      try {
+        // Trigger data fetch before login
+        await mutate();
+        onLogin();
+      } catch (error) {
+        console.error('Failed to fetch initial data:', error);
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+      }
     } else {
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -74,7 +84,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   className="flex items-center gap-2 text-red-400 text-sm"
                 >
                   <X className="w-4 h-4" />
-                  <span>Código incorrecto. Intente nuevamente.</span>
+                  <span>Código incorrecto o error de conexión. Intente nuevamente.</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -87,13 +97,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             </button>
           </div>
         </form>
-
-        {/* Background decorative elements */}
-        <div className="absolute -z-10 inset-0 blur-3xl opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-[#00FF9C] rounded-full" />
-          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-purple-500 rounded-full" />
-        </div>
       </motion.div>
     </div>
   );
-}
+};

@@ -1,16 +1,20 @@
 import useSWR from 'swr';
-import { fetchSheetData } from '../lib/services/sheetService';
+import { fetchProvincialData } from '../lib/services/data/provincial';
 import type { SheetData } from '../lib/types/sheets';
 
 export function useProvincialData() {
-  const { data, error, isLoading } = useSWR<SheetData[]>(
+  const { data, error, isLoading, mutate } = useSWR<SheetData[]>(
     'provincial-data',
     async () => {
       try {
-        return await fetchSheetData();
+        const data = await fetchProvincialData();
+        if (!data || data.length === 0) {
+          throw new Error('No se encontraron datos en la hoja de cálculo');
+        }
+        return data;
       } catch (error) {
-        console.error('Failed to fetch provincial data:', error);
-        return []; // Return empty array instead of throwing
+        const message = error instanceof Error ? error.message : 'Error desconocido';
+        throw new Error(message);
       }
     },
     {
@@ -18,19 +22,20 @@ export function useProvincialData() {
       revalidateOnFocus: true,
       dedupingInterval: 60000, // 1 minute
       errorRetryCount: 3,
-      fallbackData: [],
       suspense: false,
-      shouldRetryOnError: true
+      shouldRetryOnError: true,
+      fallbackData: [] // Provide empty array as fallback
     }
   );
 
   return {
     data: data || [],
     isLoading,
-    isError: error,
-    isEmpty: !isLoading && !error && (!data || data.length === 0)
+    isError: !!error,
+    error: error instanceof Error ? error.message : 'Error desconocido',
+    mutate // Expose mutate function for manual revalidation
   };
 }
 
-// Export both names for compatibility
+// Export alias for backward compatibility
 export const useStoreData = useProvincialData;

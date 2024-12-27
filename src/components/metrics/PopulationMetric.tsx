@@ -1,6 +1,7 @@
 import React from 'react';
 import { Users } from 'lucide-react';
-import { usePopulationData } from '../../hooks/usePopulationData';
+import { useProvincialData } from '../../hooks/useProvincialData';
+import { calculateTotalPopulation } from '../../lib/utils/calculations';
 import { motion } from 'framer-motion';
 
 interface PopulationMetricProps {
@@ -8,7 +9,8 @@ interface PopulationMetricProps {
 }
 
 export const PopulationMetric: React.FC<PopulationMetricProps> = ({ onClick }) => {
-  const { totalPopulation, isLoading } = usePopulationData();
+  const { data, isLoading, isError } = useProvincialData();
+  const totalPopulation = !isLoading && !isError ? calculateTotalPopulation(data) : 0;
 
   return (
     <motion.div
@@ -49,7 +51,9 @@ export const PopulationMetric: React.FC<PopulationMetricProps> = ({ onClick }) =
       <div>
         <p className="text-sm text-dark-400">Población</p>
         <p className="text-lg font-semibold">
-          {isLoading ? '...' : totalPopulation.toLocaleString('es-AR')}
+          {isLoading ? 'Cargando...' : 
+           isError ? 'Error' : 
+           totalPopulation.toLocaleString('es-AR')}
         </p>
       </div>
     </motion.div>

@@ -3,10 +3,16 @@ export interface SheetData {
   lat: number;
   lng: number;
   poblacion: number;
+  escuelas: number;
+  hospitales: number;
+  presupuesto: number;
   audienciaFbA: number;
   audienciaFbB: number;
   audienciaGmp: number;
   whatsapp: number;
+  analisis?: string;
+  recomendaciones?: string;
+  conclusiones?: string;
 }
 
 export interface AudienceTotals {
