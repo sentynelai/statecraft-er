@@ -24,7 +24,8 @@ export function parseSheetRow(row: any[]): SheetData {
     whatsapp: parseNumber(row[17]),
     analisis: String(row[22] || '').trim(),
     recomendaciones: String(row[23] || '').trim(),
-    conclusiones: String(row[25] || '').trim()
+    conclusiones: String(row[25] || '').trim(),
+    eventos: String(row[24] || '').trim() // Column Y contains eventos
   };
 }
 

@@ -15,7 +15,7 @@ export const Modal: React.FC<ModalProps> = ({ title, icon: Icon, onClose, childr
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex-shrink-0 w-80 glass rounded-xl p-4"
+      className="flex-shrink-0 w-full glass rounded-xl p-4"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

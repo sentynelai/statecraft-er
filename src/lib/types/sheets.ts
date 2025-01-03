@@ -13,12 +13,5 @@ export interface SheetData {
   analisis?: string;
   recomendaciones?: string;
   conclusiones?: string;
-}
-
-export interface AudienceTotals {
-  fbA: number;
-  fbB: number;
-  gmp: number;
-  whatsapp: number;
-  total: number;
+  eventos?: string;
 }

@@ -1,30 +1,28 @@
-import React, { useRef } from 'react';
-import { Users, Facebook, MessageSquare, Calendar, Newspaper, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import React from 'react';
+import { Users, Facebook, MessageCircle, Chrome, Calendar, Newspaper, X } from 'lucide-react';
 import { useProvincialData } from '../../hooks/useProvincialData';
 import { calculateTotalPopulation, calculateAudienceTotals } from '../../lib/utils/calculations';
+import { getRandomEvents } from '../../lib/utils/events';
 import { Modal } from '../ui/Modal';
-import { motion } from 'framer-motion';
+import { ModalOverlay } from '../ui/ModalOverlay';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useModalStore } from '../../stores/modalStore';
+import { EventCard } from './EventCard';
+import { NewsCard } from './NewsCard';
 
 export const InfoModals: React.FC = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { data } = useProvincialData();
-  const { closeAllModals } = useModalStore();
+  const { closeAllModals, isOpen } = useModalStore();
   
   const totalPopulation = calculateTotalPopulation(data);
   const audienceTotals = calculateAudienceTotals(data);
-
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (!scrollContainerRef.current) return;
-    const scrollAmount = direction === 'left' ? -300 : 300;
-    scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  };
+  const randomEvents = getRandomEvents(data);
 
   const modals = [
     {
       title: 'Demografía',
       icon: Users,
-      showCloseButton: true, // Only the first modal will have the close button
+      showCloseButton: true,
       content: (
         <div className="space-y-4">
           <div className="flex items-center gap-3">
@@ -39,29 +37,32 @@ export const InfoModals: React.FC = () => {
 
           <div className="mt-6">
             <h3 className="text-sm font-medium mb-4">Audiencia Digital</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Facebook className="w-4 h-4 text-blue-400" />
-                  <span>Facebook A</span>
+            <div className="space-y-4">
+              {[
+                { name: 'Facebook A', icon: Facebook, color: '#1877F2', value: audienceTotals.fbA },
+                { name: 'Facebook B', icon: Facebook, color: '#1877F2', value: audienceTotals.fbB },
+                { name: 'Google', icon: Chrome, color: '#4285F4', value: audienceTotals.gmp },
+                { name: 'WhatsApp', icon: MessageCircle, color: '#25D366', value: audienceTotals.whatsapp }
+              ].map((platform) => (
+                <div key={platform.name} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <platform.icon className="w-4 h-4" style={{ color: platform.color }} />
+                      <span>{platform.name}</span>
+                    </div>
+                    <span>{platform.value.toLocaleString()}</span>
+                  </div>
+                  <div className="h-2 bg-dark-800 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full"
+                      style={{ backgroundColor: platform.color }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(platform.value / audienceTotals.total) * 100}%` }}
+                      transition={{ duration: 1 }}
+                    />
+                  </div>
                 </div>
-                <span>{audienceTotals.fbA.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Facebook className="w-4 h-4 text-blue-400" />
-                  <span>Facebook B</span>
-                </div>
-                <span>{audienceTotals.fbB.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>GMP</span>
-                <span>{audienceTotals.gmp.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>WhatsApp</span>
-                <span>{audienceTotals.whatsapp.toLocaleString()}</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -69,13 +70,17 @@ export const InfoModals: React.FC = () => {
     },
     {
       title: 'Tendencias',
-      icon: MessageSquare,
+      icon: MessageCircle,
       showCloseButton: false,
       content: (
-        <p className="text-dark-400">
-          Las tendencias actuales muestran un crecimiento significativo en la participación 
-          ciudadana y el uso de plataformas digitales para la comunicación gubernamental.
-        </p>
+        <div className="space-y-4">
+          <p className="text-dark-400">
+            Las publicaciones tratan sobre <strong>seguridad</strong>, <strong>salud pública</strong>, 
+            <strong>eventos culturales</strong>, <strong>turismo</strong> y <strong>problemáticas 
+            sociales y económicas</strong>, reflejando las principales preocupaciones e intereses 
+            de la comunidad.
+          </p>
+        </div>
       )
     },
     {
@@ -83,10 +88,18 @@ export const InfoModals: React.FC = () => {
       icon: Calendar,
       showCloseButton: false,
       content: (
-        <p className="text-dark-400">
-          Próximamente se realizarán diversos eventos culturales y sociales en toda la 
-          provincia, fomentando la integración y el desarrollo comunitario.
-        </p>
+        <div className="space-y-4">
+          <p className="text-dark-400">
+            Las publicaciones tratan sobre <strong>seguridad</strong>, <strong>salud pública</strong>, 
+            <strong>eventos culturales</strong>, <strong>turismo</strong> y <strong>problemáticas 
+            sociales y económicas</strong>, reflejando las principales preocupaciones e intereses 
+            de la comunidad.
+          </p>
+          
+          {randomEvents.map((event, index) => (
+            <EventCard key={index} content={event} index={index} />
+          ))}
+        </div>
       )
     },
     {
@@ -94,47 +107,46 @@ export const InfoModals: React.FC = () => {
       icon: Newspaper,
       showCloseButton: false,
       content: (
-        <p className="text-dark-400">
-          Las últimas noticias destacan importantes avances en infraestructura y 
-          desarrollo social en diferentes departamentos de la provincia.
-        </p>
+        <div className="space-y-4">
+
+          <p className="text-dark-400">
+            Las publicaciones tratan sobre <strong>seguridad</strong>, <strong>salud pública</strong>, 
+            <strong>eventos culturales</strong>, <strong>turismo</strong> y <strong>problemáticas 
+            sociales y económicas</strong>, reflejando las principales preocupaciones e intereses 
+            de la comunidad.
+          </p>
+          
+          {data.slice(0, 3).map((dept, index) => (
+            <NewsCard key={index} content={dept.conclusiones} index={index} />
+          ))}
+        </div>
       )
     }
   ];
 
   return (
-    <div className="fixed top-24 left-0 right-0 px-4">
-      <div className="relative max-w-7xl mx-auto">
-        <button
-          onClick={() => handleScroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-dark-900/90 rounded-full backdrop-blur-sm z-10 hover:bg-dark-800/90 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-        >
-          {modals.map((modal, index) => (
-            <Modal
-              key={modal.title}
-              title={modal.title}
-              icon={modal.icon}
-              onClose={modal.showCloseButton ? closeAllModals : undefined}
-            >
-              {modal.content}
-            </Modal>
-          ))}
-        </div>
-
-        <button
-          onClick={() => handleScroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-dark-900/90 rounded-full backdrop-blur-sm z-10 hover:bg-dark-800/90 transition-colors"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <ModalOverlay />
+          <div className="fixed top-24 left-0 right-0 bottom-4 px-4 z-40 overflow-y-auto">
+            <div className="max-w-7xl mx-auto pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {modals.map((modal, index) => (
+                  <Modal
+                    key={modal.title}
+                    title={modal.title}
+                    icon={modal.icon}
+                    onClose={modal.showCloseButton ? closeAllModals : undefined}
+                  >
+                    {modal.content}
+                  </Modal>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };

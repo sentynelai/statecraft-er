@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Facebook, MessageSquare, Users, X } from 'lucide-react';
+import { Facebook, MessageCircle, Users, X, Chrome } from 'lucide-react';
 import { useProvincialData } from '../../hooks/useProvincialData';
 import { calculateAudienceTotals } from '../../lib/utils/calculations';
 
@@ -19,6 +19,8 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
       value: audienceTotals.fbA,
       icon: Facebook,
       color: '#1877F2',
+      bgColor: 'bg-[#1877F2]/20',
+      textColor: 'text-[#1877F2]',
       progress: (audienceTotals.fbA / audienceTotals.total) * 100
     },
     {
@@ -26,20 +28,26 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
       value: audienceTotals.fbB,
       icon: Facebook,
       color: '#1877F2',
+      bgColor: 'bg-[#1877F2]/20',
+      textColor: 'text-[#1877F2]',
       progress: (audienceTotals.fbB / audienceTotals.total) * 100
     },
     {
-      name: 'GMP',
+      name: 'Google',
       value: audienceTotals.gmp,
-      icon: MessageSquare,
-      color: '#00FF9C',
+      icon: Chrome,
+      color: '#4285F4',
+      bgColor: 'bg-[#4285F4]/20',
+      textColor: 'text-[#4285F4]',
       progress: (audienceTotals.gmp / audienceTotals.total) * 100
     },
     {
       name: 'WhatsApp',
       value: audienceTotals.whatsapp,
-      icon: Users,
+      icon: MessageCircle,
       color: '#25D366',
+      bgColor: 'bg-[#25D366]/20',
+      textColor: 'text-[#25D366]',
       progress: (audienceTotals.whatsapp / audienceTotals.total) * 100
     }
   ];
@@ -58,7 +66,10 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
         className="bg-dark-950/90 rounded-xl w-full max-w-4xl border border-dark-800/50 backdrop-blur-xl"
       >
         <div className="p-6 flex justify-between items-center border-b border-dark-800/50">
-          <h2 className="text-2xl font-bold">Audiencia Digital</h2>
+          <div className="flex items-center gap-3">
+            <Users className="w-6 h-6 text-[#00FF9C]" />
+            <h2 className="text-2xl font-bold">Audiencia Digital</h2>
+          </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-dark-800/50 rounded-lg transition-colors"
@@ -75,16 +86,12 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-dark-800/30 rounded-xl p-6"
+                className="bg-dark-800/30 rounded-xl p-6 hover:bg-dark-800/40 transition-colors"
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <div 
-                    className="p-3 rounded-lg"
-                    style={{ backgroundColor: `${platform.color}20` }}
-                  >
+                  <div className={`p-3 rounded-lg ${platform.bgColor}`}>
                     <platform.icon 
-                      className="w-6 h-6"
-                      style={{ color: platform.color }}
+                      className={`w-6 h-6 ${platform.textColor}`}
                     />
                   </div>
                   <div>
@@ -98,19 +105,39 @@ export const DigitalAudienceModal: React.FC<DigitalAudienceModalProps> = ({ onCl
                     {platform.value.toLocaleString('es-AR')}
                   </p>
 
-                  <div className="h-2 bg-dark-800 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${platform.progress}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: platform.color }}
-                    />
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-dark-400">Alcance</span>
+                      <span className={platform.textColor}>{platform.progress.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-dark-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${platform.progress}%` }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: platform.color }}
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {aiResponse && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-[#00FF9C]/10 rounded-xl border border-[#00FF9C]/20"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-[#00FF9C]" />
+                <span className="font-medium">Análisis de Audiencia</span>
+              </div>
+              <p className="text-dark-400">{aiResponse}</p>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </motion.div>

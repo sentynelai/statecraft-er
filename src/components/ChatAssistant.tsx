@@ -16,6 +16,7 @@ export const ChatAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { selectedStore } = useStoreSelection();
 
@@ -38,6 +39,7 @@ export const ChatAssistant: React.FC = () => {
     
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
+    setError(null);
 
     try {
       const storeContext = selectedStore 
@@ -46,17 +48,17 @@ export const ChatAssistant: React.FC = () => {
 
       const response = await getChatResponse(storeContext);
       
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: response || 'I apologize, but I was unable to process your request.',
-        timestamp: new Date()
-      }]);
+      if (response) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: response,
+          timestamp: new Date()
+        }]);
+      } else {
+        setError('Lo siento, el servicio de IA no está disponible en este momento.');
+      }
     } catch (error) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
-      }]);
+      setError('Ocurrió un error al procesar tu mensaje. Por favor, intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +91,7 @@ export const ChatAssistant: React.FC = () => {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-2 h-2 bg-[#00FF9C] rounded-full"
               />
-              <h3 className="font-medium">Ask Sentynel AI</h3>
+              <h3 className="font-medium">Sentynel AI</h3>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -112,6 +114,15 @@ export const ChatAssistant: React.FC = () => {
                 <div className="bg-dark-800/50 p-3 rounded-lg">
                   <Loader2 className="w-5 h-5 animate-spin text-[#00FF9C]" />
                 </div>
+              </motion.div>
+            )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-red-400 text-sm"
+              >
+                {error}
               </motion.div>
             )}
             <div ref={messagesEndRef} />

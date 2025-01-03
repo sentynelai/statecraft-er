@@ -6,9 +6,10 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-export async function getChatResponse(message: string) {
+export async function getChatResponse(message: string): Promise<string | null> {
   if (!OPENAI_CONFIG.API_KEY) {
-    throw new Error('OpenAI API key is not configured');
+    console.warn('OpenAI API key is not configured');
+    return null;
   }
 
   try {
@@ -31,6 +32,6 @@ export async function getChatResponse(message: string) {
     return completion.choices[0].message.content;
   } catch (error) {
     console.error('OpenAI API error:', error);
-    throw error;
+    return null;
   }
 }

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { BarChart2 } from 'lucide-react';
 import { Logo } from './Logo';
 import { HeaderMetrics } from './HeaderMetrics';
+import { RefreshButton } from './RefreshButton';
 import { useModalStore } from '../stores/modalStore';
 
 export const Header: React.FC = () => {
@@ -24,6 +25,7 @@ export const Header: React.FC = () => {
             <BarChart2 className="w-4 h-4" />
             <span>Métricas principales</span>
           </button>
+          <RefreshButton />
         </div>
         <HeaderMetrics />
       </div>

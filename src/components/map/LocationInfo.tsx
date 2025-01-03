@@ -9,7 +9,6 @@ interface LocationInfoProps {
 }
 
 export const LocationInfo: React.FC<LocationInfoProps> = ({ data, onClose }) => {
-  console.log("LocationInfo: ",data);
   return (
     <motion.div
       initial={{ opacity: 0 }}
