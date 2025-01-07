@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Database, Map, Wifi, CheckCircle2, X } from 'lucide-react';
 import { Logo } from './Logo';
 
@@ -35,13 +35,23 @@ export const PreloadScreen: React.FC<PreloadScreenProps> = ({ onDemoConsent }) =
     };
   }, []);
 
+  // Auto-redirect when all services are loaded
+  useEffect(() => {
+    const allLoaded = Object.values(loadingStates).every(state => state === 'success');
+    if (allLoaded) {
+      // Small delay before redirect for smooth transition
+      const redirectTimer = setTimeout(() => {
+        onDemoConsent(true);
+      }, 500);
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [loadingStates, onDemoConsent]);
+
   const services = [
     { name: 'Base de Datos Provincial', icon: Database, state: loadingStates.sheets },
     { name: 'Mapa Interactivo', icon: Map, state: loadingStates.map },
     { name: 'Asistente IA', icon: Wifi, state: loadingStates.assistant }
   ];
-
-  const allLoaded = Object.values(loadingStates).every(state => state === 'success');
 
   return (
     <div className="fixed inset-0 bg-dark-950 flex items-center justify-center">
@@ -85,20 +95,6 @@ export const PreloadScreen: React.FC<PreloadScreenProps> = ({ onDemoConsent }) =
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: allLoaded ? 1 : 0 }}
-          className="mt-8 flex justify-center"
-        >
-          <button
-            onClick={() => onDemoConsent(true)}
-            disabled={!allLoaded}
-            className="px-8 py-3 bg-[#00FF9C] text-dark-950 rounded-lg font-medium hover:bg-[#00FF9C]/90 transition-colors disabled:opacity-50"
-          >
-            Continuar
-          </button>
-        </motion.div>
       </div>
     </div>
   );

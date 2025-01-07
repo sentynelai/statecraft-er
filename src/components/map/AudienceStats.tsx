@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, MessageSquare, Users } from 'lucide-react';
+import { Facebook, MessageCircle, Users } from 'lucide-react';
 import type { SheetData } from '../../lib/types/sheets';
 import { motion } from 'framer-motion';
 
@@ -10,21 +10,15 @@ interface AudienceStatsProps {
 export const AudienceStats: React.FC<AudienceStatsProps> = ({ location }) => {
   const platforms = [
     { 
-      name: 'Facebook A', 
-      value: location.audienciaFbA,
-      icon: Facebook,
-      color: '#1877F2'
-    },
-    { 
-      name: 'Facebook B', 
-      value: location.audienciaFbB,
+      name: 'Meta', 
+      value: [location.audienciaFbA, location.audienciaFbB],
       icon: Facebook,
       color: '#1877F2'
     },
     { 
       name: 'GMP', 
       value: location.audienciaGmp,
-      icon: MessageSquare,
+      icon: MessageCircle,
       color: '#00FF9C'
     },
     { 
@@ -59,7 +53,9 @@ export const AudienceStats: React.FC<AudienceStatsProps> = ({ location }) => {
             <div>
               <p className="text-xs text-dark-400">{platform.name}</p>
               <p className="text-sm font-medium">
-                {platform.value?.toLocaleString('es-AR') || '0'}
+                {Array.isArray(platform.value) 
+                  ? `${platform.value[0].toLocaleString('es-AR')} - ${platform.value[1].toLocaleString('es-AR')}`
+                  : platform.value.toLocaleString('es-AR')}
               </p>
             </div>
           </motion.div>

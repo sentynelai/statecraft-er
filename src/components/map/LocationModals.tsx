@@ -4,6 +4,7 @@ import { Users, X } from 'lucide-react';
 import type { SheetData } from '../../lib/types/sheets';
 import { AudienceStats } from './AudienceStats';
 import { LocationInsight } from './LocationInsight';
+import { InfluencersModal } from './InfluencersModal';
 
 interface LocationModalsProps {
   location: SheetData;
@@ -51,6 +52,11 @@ export const LocationModals: React.FC<LocationModalsProps> = ({ location, onClos
 
         {/* Location Insights */}
         <LocationInsight location={location} />
+
+        {/* Influencers Section */}
+          <div className="px-6 pb-6">
+            <InfluencersModal departamento={location.departamento} />
+          </div>
       </div>
     </motion.div>
   );
